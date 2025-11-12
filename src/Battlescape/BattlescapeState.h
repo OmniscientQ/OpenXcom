@@ -61,6 +61,7 @@ private:
 
 	static const int SPECIAL_BUTTONS_MAX = 3;
 	int _posSpecialActions[SPECIAL_BUTTONS_MAX];
+	BattlescapeButton *_btnHandsFree[SPECIAL_BUTTONS_MAX];
 
 	static const int VISIBLE_MAX = 10;
 	std::string _txtVisibleUnitTooltip[VISIBLE_MAX+2];
@@ -200,6 +201,8 @@ public:
 	void btnSpecialClick(Action *action);
 	/// Handler for clicking the skills menu button.
 	void btnSkillsClick(Action *action);
+	/// Handler for clicking the hands-free weapon button.
+	void btnHandsFreeClick(Action *action);
 	/// Handler for clicking a reserved button.
 	void btnReserveClick(Action *action);
 	/// Handler for clicking the reload button.

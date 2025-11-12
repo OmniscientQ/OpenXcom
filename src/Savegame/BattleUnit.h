@@ -778,6 +778,10 @@ public:
 	BattleItem *getSpecialWeapon(const RuleItem *weaponRule) const;
 	/// Gets special weapon that uses an icon, if any.
 	BattleItem *getSpecialIconWeapon(BattleType &type) const;
+	/// Gets hands-free weapon from inventory.
+	std::vector<BattleItem*> getHandsFreeWeapons() const;
+	/// Gets the number of hands-free weapons currently in inventory.
+	int numHandsFree() const;
 
 	/// Checks if this unit is in hiding for a turn.
 	bool isHiding() const {return _hidingForTurn; };

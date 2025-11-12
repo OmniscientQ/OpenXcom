@@ -424,7 +424,7 @@ private:
 	std::string _medikitActionName, _psiAttackName, _primeActionName, _unprimeActionName, _primeActionMessage, _unprimeActionMessage;
 	std::string _sellActionMessage;
 
-	bool _twoHanded, _blockBothHands, _fixedWeapon, _fixedWeaponShow, _isConsumable, _isFireExtinguisher;
+	bool _twoHanded, _blockBothHands, _fixedWeapon, _fixedWeaponShow, _isConsumable, _isFireExtinguisher, _isHandsFree;
 	bool _specialUseEmptyHand, _specialUseEmptyHandShow;
 	int _inventoryMoveCostPercent = 100;
 	std::string _defaultInventorySlotName;
@@ -861,6 +861,8 @@ public:
 	bool isConsumable() const;
 	/// Does this item extinguish fire?
 	bool isFireExtinguisher() const;
+	/// Can this item be used without being held in a hand?
+	bool isHandsFree() const;
 	/// If this is used as a speacialWeapon, is it accessed by empty hand?
 	bool isSpecialUsingEmptyHand() const;
 	/// Display icon in an empty hand?

@@ -5493,6 +5493,40 @@ BattleItem *BattleUnit::getSpecialIconWeapon(BattleType &type) const
 }
 
 /**
+ * Gets a hands-free weapons from inventory.
+ * @return Vector of pointers to the weapons. Null if none found.
+ */
+std::vector<BattleItem*> BattleUnit::getHandsFreeWeapons() const
+{
+	std::vector<BattleItem*> weaps;
+
+	for (auto* bi : _inventory)
+	{
+		if (bi->getRules()->isHandsFree())
+		{
+			weaps.push_back(bi);
+		}
+	}
+
+	return weaps;
+}
+
+/**
+ * Returns the number of hands-free weapons currently in inventory.
+ * @return Integer, num of hands free weapons.
+ */
+int BattleUnit::numHandsFree() const
+{
+	int total = 0;
+	for (auto* bi: _inventory)
+	{
+		if (bi->getRules()->isHandsFree()) total++;
+	}
+
+	return total;
+}
+
+/**
  * Recovers a unit's TUs and energy, taking a number of factors into consideration.
  */
 void BattleUnit::recoverTimeUnits()

@@ -200,6 +200,11 @@ BattlescapeState::BattlescapeState() :
 	_btnSpecial->setVisible(false);
 	_btnSkills = new BattlescapeButton(32, 24, screenWidth - 32, 25); // we need screenWidth, because that is independent of the black bars on the screen
 	_btnSkills->setVisible(false);
+	for (int i = 0; i < SPECIAL_BUTTONS_MAX; i++)
+	{
+		_btnHandsFree[i] = new BattlescapeButton(32, 24, 0, (i*24 + 25));
+		_btnHandsFree[i]->setVisible(false);
+	}
 
 	{
 		int posX = (screenWidth - 32);
@@ -389,6 +394,12 @@ BattlescapeState::BattlescapeState() :
 	_game->getMod()->getSurfaceSet("SPICONS.DAT")->getFrame(1)->blitNShade(_btnSpecial, 0, 0); // use psi button for default
 	add(_btnSkills);
 	_game->getMod()->getSurfaceSet("SPICONS.DAT")->getFrame(1)->blitNShade(_btnSkills, 0, 0); // use psi button for default
+
+	for (auto* btn : _btnHandsFree)
+	{
+		add(btn);
+		_game->getMod()->getSurfaceSet("SPICONS.DAT")->getFrame(1)->blitNShade(btn, 0, 0); // use psi button for default
+	}
 
 	add(_btnCtrl);
 	add(_btnAlt);
@@ -660,6 +671,11 @@ BattlescapeState::BattlescapeState() :
 	_btnSpecial->setTooltip("STR_USE_SPECIAL_ITEM");
 	_btnSpecial->onMouseIn((ActionHandler)&BattlescapeState::txtTooltipInExtraSpecial);
 	_btnSpecial->onMouseOut((ActionHandler)&BattlescapeState::txtTooltipOut);
+
+	for (auto* btn : _btnHandsFree)
+	{
+		btn->onMouseClick((ActionHandler)&BattlescapeState::btnHandsFreeClick);
+	}
 
 	_btnSkills->onMouseClick((ActionHandler)&BattlescapeState::btnSkillsClick);
 	_btnSkills->onKeyboardPress((ActionHandler)&BattlescapeState::btnSkillsClick, Options::keyBattleUseSpecial);
@@ -1892,6 +1908,46 @@ void BattlescapeState::btnSkillsClick(Action *action)
 }
 
 /**
+ * Shows action menu for hands-free weapons.
+ * @param action Pointer to an action.
+ * Shamelessly copied from btnSpecialClick.
+ */
+void BattlescapeState::btnHandsFreeClick(Action *action)
+{
+	if (playableUnitSelected())
+	{
+		// concession for touch devices:
+		// click on the item to cancel action, and don't pop up a menu to select a new one
+		// TODO: wrap this in an IFDEF ?
+		if (_battleGame->getCurrentAction()->targeting)
+		{
+			_battleGame->cancelCurrentAction();
+			return;
+		}
+
+		_battleGame->cancelCurrentAction();
+
+		std::vector<BattleItem*> hfWeapons = _save->getSelectedUnit()->getHandsFreeWeapons();
+		if (hfWeapons.empty())
+		{
+			return;
+		}
+
+		_map->draw();
+		bool middleClick = _game->isMiddleClick(action, true);
+		for (int i = 0; i < SPECIAL_BUTTONS_MAX; i++)
+		{
+			if (action->getSender() == _btnHandsFree[i])
+			{
+				handleItemClick(hfWeapons[i], middleClick);
+				break;
+			}
+		}
+	}
+	action->getDetails()->type = SDL_NOEVENT; // consume the event
+}
+
+/**
  * Reserves time units.
  * @param action Pointer to an action.
  */
@@ -2405,6 +2461,8 @@ void BattlescapeState::updateUiButton(const BattleUnit *battleUnit)
 
 	bool hasSkills = battleUnit->getGeoscapeSoldier() && battleUnit->skillMenuCheck();
 
+	int numHandsFree = battleUnit->numHandsFree();
+
 	resetUiButton();
 
 	int offset = 0;
@@ -2436,6 +2494,21 @@ void BattlescapeState::updateUiButton(const BattleUnit *battleUnit)
 			show(_btnPsi, 1);
 		}
 	}
+	if (numHandsFree)
+	{
+		int i = 0;
+		std::vector<BattleItem*> weaps = battleUnit->getHandsFreeWeapons();
+		for (auto* btn : _btnHandsFree)
+		{
+			if (i < weaps.size())
+			{
+				int icon = weaps[i]->getRules()->getSpecialIconSprite();
+				_game->getMod()->getSurfaceSet("SPICONS.DAT")->getFrame(icon)->blitNShade(btn, 0, 0);
+				btn->setVisible(true);
+			}
+			i++;
+		}
+	}
 }
 
 void BattlescapeState::resetUiButton()
@@ -2450,6 +2523,10 @@ void BattlescapeState::resetUiButton()
 	{
 		btn->setVisible(false);
 		btn->setX(_posSpecialActions[0]);
+	}
+	for(auto* btn : _btnHandsFree)
+	{
+		btn->setVisible(false);
 	}
 }
 
